@@ -12,8 +12,12 @@ def add_item():
   with open("todos.txt", "a") as todos_doc:
     todos_doc.write("\n" + new_item)
 
-def choose_todo_action(selected_todo):
-  pass
+def remove_item(selected_todo, todos):
+  if confirm(f'Delete item "{selected_todo}" from the list?'):
+    todos.remove(selected_todo.split(" ", 1)[1])
+    with open("todos.txt", "w") as todos_doc:
+      for todo in todos[:-2]:
+        todos_doc.write("\n" + todo)
 
 def main():
   while True:
@@ -21,11 +25,12 @@ def main():
     console.print("[green underline]YOUR TODOS:[/green underline]")
     todos = []
     with open("todos.txt") as todos_doc:
-      for index, todo in enumerate(todos_doc, start=1):
-        todos.append(str(index) + ". " + todo.strip())
+      for todo in todos_doc:
+        if todo.strip() != "":
+          todos.append(todo.strip())
     todos.append("[cyan]Add item[/cyan]")
     todos.append("[red]Quit[/red]")
-    selected_todo = select(todos)
+    selected_todo = select([str(index) + ". " + todo for index, todo in enumerate(todos[:-2], start=1)] + todos[-2:])
     # Keep select items visible after selecting an option
     for todo in todos[:-2]:
       print(todo)
@@ -34,6 +39,6 @@ def main():
       case "[red]Quit[/red]":
         if confirm("Are you sure you want to quit?"):
           sys.exit()
-      case _: choose_todo_action(selected_todo)
+      case _: remove_item(selected_todo, todos)
 
 main()

@@ -2,40 +2,50 @@ from beaupy import confirm, prompt, select, select_multiple
 from rich.console import Console
 import sys
 import os
+import json
 
 console = Console()
 
-def add_item():
+def add_item(todos):
   new_item = ""
   while new_item == "":
     new_item = prompt("New item:").strip()
-  with open("todos.txt", "a") as todos_doc:
-    todos_doc.write("\n" + new_item)
+  todos.append({"text": new_item, "checked": False})
+  with open("todos.json", "w") as todos_doc:
+    json.dump(todos, todos_doc)
 
 def remove_item(selected_todo, todos):
   if confirm(f'Delete item "{selected_todo}" from the list?'):
-    todos.remove(selected_todo.split(" ", 1)[1])
-    with open("todos.txt", "w") as todos_doc:
-      for todo in todos[:-2]:
-        todos_doc.write("\n" + todo)
+    selected_todo = find_todo_item(selected_todo, todos)
+    todos.remove(selected_todo)
+    with open("todos.json", "w") as todos_doc:
+      json.dump(todos, todos_doc)
+
+def find_todo_item(selected_todo, todos):
+  selected_todo = selected_todo.split(" ", 1)[1]
+  for todo in todos:
+    if todo["text"] == selected_todo:
+      return todo
+
+def todos_to_list(todos):
+  todos_list = []
+  for index, todo in enumerate(todos, start=1):
+    todos_list.append(str(index) + ". " + todo["text"])
+  return todos_list
 
 def main():
   while True:
     os.system('cls' if os.name=='nt' else 'clear')
     console.print("[green underline]YOUR TODOS:[/green underline]")
-    todos = []
-    with open("todos.txt") as todos_doc:
-      for todo in todos_doc:
-        if todo.strip() != "":
-          todos.append(todo.strip())
-    todos.append("[cyan]Add item[/cyan]")
-    todos.append("[red]Quit[/red]")
-    selected_todo = select([str(index) + ". " + todo for index, todo in enumerate(todos[:-2], start=1)] + todos[-2:])
-    # Keep select items visible after selecting an option
-    for todo in todos[:-2]:
+    with open("todos.json") as todos_doc:
+      todos = json.load(todos_doc)
+    options = todos_to_list(todos) + ["[cyan]Add item[/cyan]", "[red]Quit[/red]"]
+    selected_todo = select(options)
+    # Keep todo items visible after selecting an option
+    for todo in todos_to_list(todos):
       print(todo)
     match selected_todo:
-      case "[cyan]Add item[/cyan]": add_item()
+      case "[cyan]Add item[/cyan]": add_item(todos)
       case "[red]Quit[/red]":
         if confirm("Are you sure you want to quit?"):
           sys.exit()

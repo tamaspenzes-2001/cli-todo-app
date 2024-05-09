@@ -25,7 +25,7 @@ def edit_item(selected_todo):
   selected_todo["text"] = modified_todo_text
 
 def remove_item(selected_todo, todos):
-  if confirm(f'Delete item from the list?'):
+  if confirm(f'Delete item from the list?', default_is_yes=True):
     todos.remove(selected_todo)
 
 def move_item_up(selected_todo, todos):
@@ -71,7 +71,7 @@ def main():
     elif selected == show_hide_option:
       show_checked = not show_checked
     elif selected == quit_option:
-      if confirm("Are you sure you want to quit?"):
+      if confirm("Are you sure you want to quit?", default_is_yes=True):
         sys.exit()
     else:
       todo_options_menu(selected, todos)

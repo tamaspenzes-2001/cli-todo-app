@@ -14,12 +14,35 @@ def add_item(todos):
   with open("todos.json", "w") as todos_doc:
     json.dump(todos, todos_doc)
 
+def check_item(selected_todo, todos):
+  pass
+
+def edit_item(selected_todo, todos):
+  pass
+
 def remove_item(selected_todo, todos):
   if confirm(f'Delete item "{selected_todo}" from the list?'):
     selected_todo = find_todo_item(selected_todo, todos)
     todos.remove(selected_todo)
     with open("todos.json", "w") as todos_doc:
       json.dump(todos, todos_doc)
+
+def move_item_up(selected_todo, todos):
+  pass
+
+def move_item_down(selected_todo, todos):
+  pass
+
+def todo_options_menu(selected_todo, todos):
+  console.print(f"[cyan]Selected: {selected_todo}[/cyan]")
+  options = ["1. Check", "2. Edit", "3. Delete", "4. Move up", "5. Move down"]
+  operation = select(options, return_index=True)
+  match operation:
+    case 0: check_item(selected_todo, todos)
+    case 1: edit_item(selected_todo, todos)
+    case 2: remove_item(selected_todo, todos)
+    case 3: move_item_up(selected_todo, todos)
+    case 4: move_item_down(selected_todo, todos)
 
 def find_todo_item(selected_todo, todos):
   selected_todo = selected_todo.split(" ", 1)[1]
@@ -49,6 +72,6 @@ def main():
       case "[red]Quit[/red]":
         if confirm("Are you sure you want to quit?"):
           sys.exit()
-      case _: remove_item(selected_todo, todos)
+      case _: todo_options_menu(selected_todo, todos)
 
 main()

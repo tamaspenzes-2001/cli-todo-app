@@ -54,18 +54,23 @@ def main():
       todos_list = utils.todos_to_list(todos)
     else:
       todos_list = utils.todos_to_list([todo for todo in todos if not todo["checked"]])
-    options = todos_list + ["[cyan]Add item[/cyan]", f"{'Hide' if show_checked else 'Show'} checked items", "[red]Quit[/red]"]
-    selected_todo = select(options)
+    add_item_option = "[cyan]Add item[/cyan]"
+    show_hide_option = f"{'Hide' if show_checked else 'Show'} checked items"
+    quit_option = "[red]Quit[/red]"
+    options = todos_list + [add_item_option, show_hide_option, quit_option]
+    selected = select(options)
     # Keep todo items visible after selecting an option
     for todo in todos_list:
       console.print(todo)
-    match selected_todo:
-      case "[cyan]Add item[/cyan]": add_item(todos)
-      case "Hide checked items": show_checked = False
-      case "Show checked items": show_checked = True
-      case "[red]Quit[/red]":
-        if confirm("Are you sure you want to quit?"):
-          sys.exit()
-      case _: todo_options_menu(selected_todo, todos)
+      
+    if selected == add_item_option:
+      add_item(todos)
+    elif selected == show_hide_option:
+      show_checked = not show_checked
+    elif selected == quit_option:
+      if confirm("Are you sure you want to quit?"):
+        sys.exit()
+    else:
+      todo_options_menu(selected, todos)
 
 main()

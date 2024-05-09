@@ -12,10 +12,13 @@ def add_item(todos):
   todos.append({"text": new_item, "checked": False})
   utils.save_to_file(todos)
 
-def check_item(selected_todo, todos):
-  pass
+def toggle_check_item(selected_todo):
+  if selected_todo["checked"]:
+    selected_todo["checked"] = False
+  else:
+    selected_todo["checked"] = True
 
-def edit_item(selected_todo, todos):
+def edit_item(selected_todo):
   pass
 
 def remove_item(selected_todo, todos):
@@ -30,12 +33,12 @@ def move_item_down(selected_todo, todos):
 
 def todo_options_menu(selected_todo, todos):
   console.print(f"[cyan]Selected: {selected_todo}[/cyan]")
-  options = ["1. Check", "2. Edit", "3. Delete", "4. Move up", "5. Move down"]
+  options = ["1. Toggle check", "2. Edit", "3. Delete", "4. Move up", "5. Move down"]
   operation = select(options, return_index=True)
   selected_todo = utils.find_todo_item(selected_todo, todos)
   match operation:
-    case 0: check_item(selected_todo, todos)
-    case 1: edit_item(selected_todo, todos)
+    case 0: toggle_check_item(selected_todo)
+    case 1: edit_item(selected_todo)
     case 2: remove_item(selected_todo, todos)
     case 3: move_item_up(selected_todo, todos)
     case 4: move_item_down(selected_todo, todos)
@@ -46,11 +49,12 @@ def main():
   while True:
     utils.clear_screen()
     console.print("[green underline]YOUR TODOS:[/green underline]")
-    options = utils.todos_to_list(todos) + ["[cyan]Add item[/cyan]", "[red]Quit[/red]"]
+    todos_list = utils.todos_to_list(todos)
+    options = todos_list + ["[cyan]Add item[/cyan]", "[red]Quit[/red]"]
     selected_todo = select(options)
     # Keep todo items visible after selecting an option
-    for todo in utils.todos_to_list(todos):
-      print(todo)
+    for todo in todos_list:
+      console.print(todo)
     match selected_todo:
       case "[cyan]Add item[/cyan]": add_item(todos)
       case "[red]Quit[/red]":

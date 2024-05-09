@@ -2,15 +2,22 @@ import json
 import os
 
 def find_todo_item(selected_todo, todos):
+  if selected_todo.startswith("[strike]"):
+    selected_todo = selected_todo.strip("[strike]").strip("[/")
   selected_todo = selected_todo.split(" ", 1)[1]
+  print(selected_todo)
   for todo in todos:
+    print(todo)
     if todo["text"] == selected_todo:
       return todo
 
 def todos_to_list(todos):
   todos_list = []
   for index, todo in enumerate(todos, start=1):
-    todos_list.append(str(index) + ". " + todo["text"])
+    if todo["checked"]:
+      todos_list.append(f'[strike]{index}. {todo["text"]}[/strike]')
+    else:
+      todos_list.append(f'{index}. {todo["text"]}')
   return todos_list
 
 def read_todos_from_file():

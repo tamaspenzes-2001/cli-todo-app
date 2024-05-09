@@ -19,7 +19,10 @@ def toggle_check_item(selected_todo):
     selected_todo["checked"] = True
 
 def edit_item(selected_todo):
-  pass
+  modified_todo_text = ""
+  while modified_todo_text == "":
+    modified_todo_text = prompt("Edit todo:", initial_value=selected_todo["text"]).strip()
+  selected_todo["text"] = modified_todo_text
 
 def remove_item(selected_todo, todos):
   if confirm(f'Delete item from the list?'):
@@ -62,7 +65,7 @@ def main():
     # Keep todo items visible after selecting an option
     for todo in todos_list:
       console.print(todo)
-      
+
     if selected == add_item_option:
       add_item(todos)
     elif selected == show_hide_option:

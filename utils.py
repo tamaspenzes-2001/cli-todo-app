@@ -5,9 +5,7 @@ def find_todo_item(selected_todo, todos):
   if selected_todo.startswith("[strike]"):
     selected_todo = selected_todo.strip("[strike]").strip("[/")
   selected_todo = selected_todo.split(" ", 1)[1]
-  print(selected_todo)
   for todo in todos:
-    print(todo)
     if todo["text"] == selected_todo:
       return todo
 

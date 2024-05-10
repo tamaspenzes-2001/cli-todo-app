@@ -29,10 +29,18 @@ def remove_item(selected_todo, todos):
     todos.remove(selected_todo)
 
 def move_item_up(selected_todo, todos):
-  pass
+  todo_index = todos.index(selected_todo)
+  if todo_index != 0:
+    todos.insert(todo_index-1, todos.pop(todo_index))
+  else:
+    todos.append(todos.pop(todo_index))
 
 def move_item_down(selected_todo, todos):
-  pass
+  todo_index = todos.index(selected_todo)
+  if todo_index != len(todos)-1:
+    todos.insert(todo_index+1, todos.pop(todo_index))
+  else:
+    todos.insert(0, todos.pop())
 
 def todo_options_menu(selected_todo, todos):
   console.print(f"[cyan]Selected: {selected_todo}[/cyan]")

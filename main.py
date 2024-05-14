@@ -1,87 +1,65 @@
-from beaupy import confirm, prompt, select, select_multiple
+from beaupy import confirm, select
 from rich.console import Console
 import sys
 import utils
+from todo_app import TodoApp
 
 console = Console()
 
-def add_item(todos):
-  new_item = ""
-  while new_item == "":
-    new_item = prompt("New item:").strip()
-  todos.append({"text": new_item, "checked": False})
-  utils.save_to_file(todos)
-
-def toggle_check_item(selected_todo):
-  if selected_todo["checked"]:
-    selected_todo["checked"] = False
-  else:
-    selected_todo["checked"] = True
-
-def edit_item(selected_todo):
-  modified_todo_text = ""
-  while modified_todo_text == "":
-    modified_todo_text = prompt("Edit todo:", initial_value=selected_todo["text"]).strip()
-  selected_todo["text"] = modified_todo_text
-
-def remove_item(selected_todo, todos):
-  if confirm(f'Delete item from the list?', default_is_yes=True):
-    todos.remove(selected_todo)
-
-def move_item_up(selected_todo, todos):
-  todo_index = todos.index(selected_todo)
-  if todo_index != 0:
-    todos.insert(todo_index-1, todos.pop(todo_index))
-  else:
-    todos.append(todos.pop(todo_index))
-
-def move_item_down(selected_todo, todos):
-  todo_index = todos.index(selected_todo)
-  if todo_index != len(todos)-1:
-    todos.insert(todo_index+1, todos.pop(todo_index))
-  else:
-    todos.insert(0, todos.pop())
-
-def todo_options_menu(selected_todo, todos):
+def todo_options_menu(selected_todo, todo_list):
   console.print(f"[cyan]Selected: {selected_todo}[/cyan]")
   options = ["1. Toggle check", "2. Edit", "3. Delete", "4. Move up", "5. Move down"]
   operation = select(options, return_index=True)
-  selected_todo = utils.find_todo_item(selected_todo, todos)
+  selected_todo = utils.find_todo_item(selected_todo, todo_list.todos)
   match operation:
-    case 0: toggle_check_item(selected_todo)
-    case 1: edit_item(selected_todo)
-    case 2: remove_item(selected_todo, todos)
-    case 3: move_item_up(selected_todo, todos)
-    case 4: move_item_down(selected_todo, todos)
-  utils.save_to_file(todos)
+    case 0: selected_todo.toggle_checked()
+    case 1: selected_todo.edit_text()
+    case 2: todo_list.remove_item(selected_todo)
+    case 3: todo_list.move_item_up(selected_todo)
+    case 4: todo_list.move_item_down(selected_todo)
+  file_name = utils.todo_list_name_to_file_name(todo_list.title)
+  utils.save_to_file(todo_list.todos, file_name)
+
+def choose_todo_list(app):
+  console.print("[green underline]TODO LISTS[/green underline]")
+  user_selection = select(app.todo_lists)
+  return user_selection
+
+def todo_list_menu(app, todo_list):
+  console.print(f"[green underline]{todo_list.title}:[/green underline]")
+  if app.show_checked:
+    shown_items = utils.todos_to_list(todo_list.todos)
+  else:
+    shown_items = utils.todos_to_list([todo for todo in todo_list.todos if not todo.checked])
+  add_item_option = "[cyan]Add item[/cyan]"
+  show_hide_option = f"{'Hide' if app.show_checked else 'Show'} checked items"
+  quit_option = "[red]Quit[/red]"
+  options = shown_items + [add_item_option, show_hide_option, quit_option]
+  selected = select(options)
+  # Keep todo items visible after selecting an option
+  for todo in shown_items:
+    console.print(todo)
+  if selected == add_item_option:
+    todo_list.add_item(todo_list.todos)
+    file_name = utils.todo_list_name_to_file_name(todo_list.title)
+    utils.save_to_file(todo_list.todos, file_name)
+  elif selected == show_hide_option:
+    app.show_checked = not app.show_checked
+  elif selected == quit_option:
+    if confirm("Are you sure you want to quit?", default_is_yes=True):
+      sys.exit()
+  else:
+    todo_options_menu(selected, todo_list)
 
 def main():
-  todos = utils.read_todos_from_file()
-  show_checked = False
+  app = TodoApp(utils.get_todo_lists())
+  list_name = choose_todo_list(app)
+  todo_list = next((todo_list for todo_list in app.loaded_todo_lists if todo_list.title == list_name), None)
+  if todo_list is None:
+    file_name = utils.todo_list_name_to_file_name(list_name)
+    todo_list = utils.read_todos_from_file(file_name)
   while True:
     utils.clear_screen()
-    console.print("[green underline]YOUR TODOS:[/green underline]")
-    if show_checked:
-      todos_list = utils.todos_to_list(todos)
-    else:
-      todos_list = utils.todos_to_list([todo for todo in todos if not todo["checked"]])
-    add_item_option = "[cyan]Add item[/cyan]"
-    show_hide_option = f"{'Hide' if show_checked else 'Show'} checked items"
-    quit_option = "[red]Quit[/red]"
-    options = todos_list + [add_item_option, show_hide_option, quit_option]
-    selected = select(options)
-    # Keep todo items visible after selecting an option
-    for todo in todos_list:
-      console.print(todo)
-
-    if selected == add_item_option:
-      add_item(todos)
-    elif selected == show_hide_option:
-      show_checked = not show_checked
-    elif selected == quit_option:
-      if confirm("Are you sure you want to quit?", default_is_yes=True):
-        sys.exit()
-    else:
-      todo_options_menu(selected, todos)
-
+    selected = todo_list_menu(app, todo_list)
+    
 main()

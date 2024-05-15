@@ -21,14 +21,21 @@ def todo_options_menu(selected_todo, todo_list):
   utils.save_to_file(todo_list.todos, file_name)
 
 def choose_todo_list(app):
-  console.print("[green underline]TODO LISTS[/green underline]")
-  user_selection = select(app.todo_lists)
-  todo_list = next((todo_list for todo_list in app.loaded_todo_lists if todo_list.title == user_selection), None)
-  if todo_list is None:
-    file_name = utils.todo_list_name_to_file_name(user_selection)
-    todo_list = utils.read_todos_from_file(file_name)
-    app.loaded_todo_lists.append(todo_list)
-  return todo_list
+  while True:
+    utils.clear_screen()
+    console.print("[green underline]TODO LISTS[/green underline]")
+    create_list_option = "[cyan]Create new list[/cyan]"
+    options = app.todo_lists + [create_list_option]
+    user_selection = select(options)
+    if user_selection == create_list_option:
+      app.create_list()
+    else:
+      todo_list = next((todo_list for todo_list in app.loaded_todo_lists if todo_list.title == user_selection), None)
+      if todo_list is None:
+        file_name = utils.todo_list_name_to_file_name(user_selection)
+        todo_list = utils.read_todos_from_file(file_name)
+        app.loaded_todo_lists.append(todo_list)
+      return todo_list
 
 def todo_list_menu(app, todo_list):
   while True:

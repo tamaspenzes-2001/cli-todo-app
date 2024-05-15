@@ -47,6 +47,8 @@ def save_to_file(todos, file):
     json.dump([vars(todo) for todo in todos], todos_doc)
 
 def get_todo_lists():
+  if not os.path.isdir("todos"):
+    os.makedirs("todos")
   todo_files = os.listdir("todos")
   todo_lists = []
   for file in todo_files:

@@ -73,6 +73,9 @@ def main():
   app = TodoApp(utils.get_todo_lists())
   while True:
     utils.clear_screen()
+    if len(app.todo_lists) == 0:
+      console.print("[red]There aren't any todo lists available.[/red]")
+      app.create_list()
     todo_list = choose_todo_list(app)
     selected = todo_list_menu(app, todo_list)
     

@@ -37,29 +37,42 @@ def choose_todo_list(app):
         app.loaded_todo_lists.append(todo_list)
       return todo_list
 
+def list_settings_menu(app, todo_list):
+  console.print(f"[cyan]List settings:[/cyan]")
+  show_hide_option = f"{'Hide' if app.show_checked else 'Show'} checked items"
+  rename_option = "Rename list"
+  delete_option = "[red]Delete list[/red]"
+  options = [show_hide_option, rename_option, delete_option]
+  selected = select(options, return_index=True)
+  match selected:
+    case 0: app.toggle_checked_items()
+    case 1: app.rename_list(todo_list)
+    case 2: app.delete_list(todo_list)
+
+def get_todos_to_show(app, todo_list):
+  if app.show_checked:
+    return utils.todos_to_list(todo_list.todos)
+  else:
+    return utils.todos_to_list([todo for todo in todo_list.todos if not todo.checked])
+
 def todo_list_menu(app, todo_list):
   while True:
     utils.clear_screen()
     console.print(f"[green underline]{todo_list.title}:[/green underline]")
-    if app.show_checked:
-      shown_items = utils.todos_to_list(todo_list.todos)
-    else:
-      shown_items = utils.todos_to_list([todo for todo in todo_list.todos if not todo.checked])
+    shown_items = get_todos_to_show(app, todo_list)
     add_item_option = "[cyan]Add item[/cyan]"
-    show_hide_option = f"{'Hide' if app.show_checked else 'Show'} checked items"
+    list_settings = "List settings"
     change_list_option = "[bright_magenta]Switch list[/bright_magenta]"
     quit_option = "[red]Quit[/red]"
-    options = shown_items + [add_item_option, show_hide_option, change_list_option, quit_option]
+    options = shown_items + [add_item_option, list_settings, change_list_option, quit_option]
     selected = select(options)
-    # Keep todo items visible after selecting an option
-    for todo in shown_items:
-      console.print(todo)
+    utils.print_todos(shown_items)
     if selected == add_item_option:
       todo_list.add_item(todo_list.todos)
       file_name = utils.todo_list_name_to_file_name(todo_list.title)
       utils.save_to_file(todo_list.todos, file_name)
-    elif selected == show_hide_option:
-      app.show_checked = not app.show_checked
+    elif selected == list_settings:
+      list_settings_menu(app, todo_list)
     elif selected == change_list_option:
       return
     elif selected == quit_option:
@@ -69,7 +82,6 @@ def todo_list_menu(app, todo_list):
       todo_options_menu(selected, todo_list)
 
 def main():
-  # TODO handle case when there are no json files
   app = TodoApp(utils.get_todo_lists())
   while True:
     utils.clear_screen()

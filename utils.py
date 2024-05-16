@@ -1,8 +1,12 @@
 import json
 import os
 import re
+import sys
 from todo_list import TodoList
 from todo_item import TodoItem
+from rich.console import Console
+
+console = Console()
 
 def find_todo_item(selected_todo, todos):
   if selected_todo.startswith("[strike]"):
@@ -21,10 +25,20 @@ def todos_to_list(todos):
       todos_list.append(f'{index}. {todo.text}')
   return todos_list
 
+def print_todos(todos):
+  for todo in todos:
+    console.print(todo)
+
 def read_todos_from_file(file):
   with open("todos/" + file) as todos_doc:
     todos_data = json.load(todos_doc)
-    return process_todos_data(todos_data, file)  
+    return process_todos_data(todos_data, file)
+
+def rename_file(file_name, new_file_name):
+  os.rename("todos/" + file_name, "todos/" + new_file_name)
+
+def delete_file(file_name):
+  os.remove("todos/" + file_name)
 
 def process_todos_data(data, file):
   list_title = file_name_to_todo_list_name(file)
@@ -58,3 +72,6 @@ def get_todo_lists():
 
 def clear_screen():
   os.system('cls' if os.name=='nt' else 'clear')
+
+def restart_program():
+  os.execl(sys.executable, sys.executable, *sys.argv)

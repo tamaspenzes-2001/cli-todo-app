@@ -5,12 +5,12 @@ class TodoList:
   def __init__(self, title, todos):
     self.title = title
     self.todos = todos
-    # self.not_checked_todos = [todo for todo in todos if not todo.checked]
-    # self.show_checked = False
-
-  # def update_not_checked_todos(self, todo_item):
-  #   if todo_item.checked:
-  #     not_checked_todos.remove(todo_item)
+  
+  def get_title(self):
+    return self.title
+    
+  def set_title(self, new_title):
+    self.title = new_title
 
   def add_item(self, todos):
     new_item = ""

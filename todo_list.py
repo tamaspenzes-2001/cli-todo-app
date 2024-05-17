@@ -12,14 +12,14 @@ class TodoList:
   def set_title(self, new_title):
     self.title = new_title
 
-  def add_item(self, todos):
+  def add_item(self):
     new_item = ""
     while new_item == "":
       try:
         new_item = prompt("New item (cannot contain \\):").strip()
       except: # prevent program from crashing if "\" is typed
         continue
-    todos.append(TodoItem(new_item, False))
+    self.todos.append(TodoItem(new_item, False))
 
   def remove_item(self, selected_todo):
     if confirm(f'Delete item from the list?', default_is_yes=True):

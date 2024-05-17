@@ -70,7 +70,7 @@ def todo_list_menu(app, todo_list):
     selected = select(options)
     utils.print_todos(shown_items)
     if selected == add_item_option:
-      todo_list.add_item(todo_list.todos)
+      todo_list.add_item()
       utils.save_to_file(todo_list.todos, todo_list.title)
     elif selected == list_settings:
       list_settings_menu(app, todo_list)

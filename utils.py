@@ -62,6 +62,7 @@ def get_todo_lists():
   todo_lists = []
   for file in todo_files:
     todo_lists.append(file.split(".")[0])
+  todo_lists.sort()
   return todo_lists
 
 def clear_screen():

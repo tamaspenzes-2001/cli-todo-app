@@ -22,8 +22,8 @@ class TodoApp:
           new_list = ""
       except: # prevent program from crashing if "\" is typed
         continue
-      
     self.todo_lists.append(new_list)
+    self.todo_lists.sort()
     utils.save_to_file([], new_list)
 
   def toggle_checked_items(self):
@@ -43,6 +43,7 @@ class TodoApp:
     file_name = todo_list.get_title()
     todo_list.set_title(modified_title)
     self.todo_lists[list_index] = todo_list.get_title()
+    self.todo_lists.sort()
     new_file_name = todo_list.get_title()
     utils.rename_file(file_name, new_file_name)
 

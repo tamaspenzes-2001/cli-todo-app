@@ -24,10 +24,14 @@ def choose_todo_list(app):
     utils.clear_screen()
     console.print("[green underline]TODO LISTS[/green underline]")
     create_list_option = "[cyan]Create new list[/cyan]"
-    options = app.todo_lists + [create_list_option]
+    quit_option = "[red]Quit[/red]"
+    options = app.todo_lists + [create_list_option, quit_option]
     user_selection = select(options)
     if user_selection == create_list_option:
       app.create_list()
+    elif user_selection == quit_option:
+      if confirm("Are you sure you want to quit?", default_is_yes=True):
+        sys.exit()
     else:
       todo_list = next((todo_list for todo_list in app.loaded_todo_lists if todo_list.title == user_selection), None)
       if todo_list is None:

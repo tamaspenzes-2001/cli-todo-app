@@ -15,7 +15,10 @@ class TodoList:
   def add_item(self, todos):
     new_item = ""
     while new_item == "":
-      new_item = prompt("New item:").strip()
+      try:
+        new_item = prompt("New item (cannot contain \\):").strip()
+      except: # prevent program from crashing if "\" is typed
+        continue
     todos.append(TodoItem(new_item, False))
 
   def remove_item(self, selected_todo):

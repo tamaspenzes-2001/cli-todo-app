@@ -29,35 +29,30 @@ def print_todos(todos):
   for todo in todos:
     console.print(todo)
 
-def read_todos_from_file(file):
-  with open("todos/" + file) as todos_doc:
+def read_todos_from_file(list_name):
+  with open(f"todos/{list_name}.json") as todos_doc:
     todos_data = json.load(todos_doc)
-    return process_todos_data(todos_data, file)
+    return process_todos_data(todos_data, list_name)
 
-def rename_file(file_name, new_file_name):
-  os.rename("todos/" + file_name, "todos/" + new_file_name)
+def rename_file(list_name, new_list_name):
+  os.rename(f"todos/{list_name}.json", f"todos/{new_list_name}.json")
 
-def delete_file(file_name):
-  os.remove("todos/" + file_name)
+def delete_file(list_name):
+  os.remove(f"todos/{list_name}.json")
 
 def process_todos_data(data, file):
-  list_title = file_name_to_todo_list_name(file)
   todo_list = []
   for todo_data in data:
     todo_list.append(TodoItem(todo_data["text"], todo_data["checked"]))
-  return TodoList(list_title, todo_list)
+  return TodoList(file.split(".")[0], todo_list)
 
-def file_name_to_todo_list_name(file):
-  file_name = file.split(".")[0]
-  list_title = " ".join(file_name.split("-")).title()
-  return list_title
+def is_list_name_valid(list_name):
+  longer_than_zero = len(list_name) > 0
+  no_invalid_chars = all(char not in list_name for char in (".", "/"))
+  return longer_than_zero and no_invalid_chars
 
-def todo_list_name_to_file_name(list_name):
-  file_name = "-".join(re.split(re.compile("\W"), list_name)).lower()
-  return file_name + ".json"
-
-def save_to_file(todos, file):
-  with open("todos/" + file, "w") as todos_doc:
+def save_to_file(todos, list_name):
+  with open(f"todos/{list_name}.json", "w") as todos_doc:
     json.dump([vars(todo) for todo in todos], todos_doc)
 
 def get_todo_lists():
@@ -66,8 +61,7 @@ def get_todo_lists():
   todo_files = os.listdir("todos")
   todo_lists = []
   for file in todo_files:
-    list_title = file_name_to_todo_list_name(file)
-    todo_lists.append(list_title)
+    todo_lists.append(file.split(".")[0])
   return todo_lists
 
 def clear_screen():

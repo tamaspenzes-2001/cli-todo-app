@@ -17,8 +17,7 @@ def todo_options_menu(selected_todo, todo_list):
     case 2: todo_list.remove_item(selected_todo)
     case 3: todo_list.move_item_up(selected_todo)
     case 4: todo_list.move_item_down(selected_todo)
-  file_name = utils.todo_list_name_to_file_name(todo_list.title)
-  utils.save_to_file(todo_list.todos, file_name)
+  utils.save_to_file(todo_list.todos, todo_list.title)
 
 def choose_todo_list(app):
   while True:
@@ -32,8 +31,7 @@ def choose_todo_list(app):
     else:
       todo_list = next((todo_list for todo_list in app.loaded_todo_lists if todo_list.title == user_selection), None)
       if todo_list is None:
-        file_name = utils.todo_list_name_to_file_name(user_selection)
-        todo_list = utils.read_todos_from_file(file_name)
+        todo_list = utils.read_todos_from_file(user_selection)
         app.loaded_todo_lists.append(todo_list)
       return todo_list
 
@@ -69,8 +67,7 @@ def todo_list_menu(app, todo_list):
     utils.print_todos(shown_items)
     if selected == add_item_option:
       todo_list.add_item(todo_list.todos)
-      file_name = utils.todo_list_name_to_file_name(todo_list.title)
-      utils.save_to_file(todo_list.todos, file_name)
+      utils.save_to_file(todo_list.todos, todo_list.title)
     elif selected == list_settings:
       list_settings_menu(app, todo_list)
     elif selected == change_list_option:
@@ -90,5 +87,5 @@ def main():
       app.create_list()
     todo_list = choose_todo_list(app)
     selected = todo_list_menu(app, todo_list)
-    
+
 main()

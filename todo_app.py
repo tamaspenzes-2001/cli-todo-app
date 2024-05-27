@@ -1,5 +1,6 @@
 from beaupy import prompt, confirm
 from rich.console import Console
+from todo_list import TodoList
 from todo_storage_manager import TodoStorageManager
 import utils
 
@@ -23,7 +24,7 @@ class TodoApp:
           list_name = ""
       except: # prevent program from crashing if "\" is typed
         continue
-    self.storage.save_to_file(list_name, True)
+    self.storage.save_to_file(TodoList(list_name, []), True)
 
   def toggle_checked_items(self):
     self.show_checked = not self.show_checked
@@ -45,10 +46,11 @@ class TodoApp:
     self.storage.todo_lists.sort()
     new_file_name = todo_list.get_title()
     self.storage.rename_file(file_name, new_file_name)
+    self.storage.save_to_file(todo_list, False)
 
   def delete_list(self, todo_list):
     if confirm(f'Are you sure? All todos in this list will be lost. Forever!', default_is_yes=True):
-      self.storage.todo_lists.remove(todo_list.title)
+      self.storage.todo_lists.remove(todo_list.text)
       self.storage.loaded_todo_lists.remove(todo_list)
       self.storage.delete_file(todo_list.get_title())
       del todo_list

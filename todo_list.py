@@ -1,15 +1,15 @@
 from beaupy import prompt, confirm
 
 class TodoList:
-  def __init__(self, title, items):
-    self.title = title
+  def __init__(self, text, items):
+    self.text = text
     self.items = items
   
   def get_title(self):
-    return self.title
+    return self.text
     
   def set_title(self, new_title):
-    self.title = new_title
+    self.text = new_title
 
   def add_item(self):
     from todo_item import TodoItem

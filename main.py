@@ -3,62 +3,57 @@ from rich.console import Console
 import sys
 import utils
 from todo_app import TodoApp
+from todo_list import TodoList
 from todo_item import TodoItem
 
 console = Console()
 
-def todo_options_menu(selected_todo, todo_list, app):
-  console.print(f"[cyan]Selected: {selected_todo}[/cyan]")
+def todo_options_menu(todo_hierarchy, printable_item, app):
+  console.print("[cyan]Selected: " + printable_item + "[/cyan]")
   options = ["1. Toggle check", "2. Edit todo text", "3. Delete", "4. Move up", "5. Move down", "6. Edit subitems"]
   operation = select(options, return_index=True)
-  selected_todo = utils.find_todo_item(selected_todo, todo_list.items)
+  todo_hierarchy[-1] = utils.find_todo_item(todo_hierarchy[-1].text, todo_hierarchy[-2].items)
   match operation:
-    case 0: selected_todo.toggle_checked()
-    case 1: selected_todo.edit_text()
-    case 2: todo_list.remove_item(selected_todo)
-    case 3: todo_list.move_item_up(selected_todo)
-    case 4: todo_list.move_item_down(selected_todo)
-    case 5: todo_subitems_menu(selected_todo, todo_list, app)
-  app.storage.save_to_file(todo_list, False)
+    case 0: todo_hierarchy[-1].toggle_checked()
+    case 1: todo_hierarchy[-1].edit_text()
+    case 2: todo_hierarchy[-2].remove_item(todo_hierarchy[-1])
+    case 3: todo_hierarchy[-2].move_item_up(todo_hierarchy[-1])
+    case 4: todo_hierarchy[-2].move_item_down(todo_hierarchy[-1])
+    case 5: todo_list_menu(app, todo_hierarchy)
+  app.storage.save_to_file(todo_hierarchy[0], False)
 
-def todo_subitem_options_menu(selected_todo, todo, app):
-  console.print(f"[cyan]Selected: {selected_todo}[/cyan]")
-  options = ["1. Toggle check", "2. Edit todo text", "3. Delete", "4. Move up", "5. Move down"]
-  operation = select(options, return_index=True)
-  selected_todo = utils.find_todo_item(selected_todo, todo.items)
-  match operation:
-    case 0: selected_todo.toggle_checked()
-    case 1: selected_todo.edit_text()
-    case 2: todo.remove_item(selected_todo)
-    case 3: todo.move_item_up(selected_todo)
-    case 4: todo.move_item_down(selected_todo)
-  todo_list = next((loaded_todo_list for loaded_todo_list in app.storage.loaded_todo_lists if todo in loaded_todo_list.items))
-  app.storage.save_to_file(todo_list, False)
-
-def todo_subitems_menu(todo, todo_list, app):
+def todo_list_menu(app, todo_hierarchy):
   while True:
     utils.clear_screen()
-    console.print(f"[green underline]{todo_list.title} / {todo.title}:[/green underline]")
-    shown_items = get_todos_to_show(app, todo)
+    header_text = "[green underline]"
+    for item in todo_hierarchy:
+      header_text += item.text + " / "
+    header_text += "[/green underline]"
+    console.print(header_text)
+    shown_items = get_todos_to_show(app, todo_hierarchy[-1])
     add_subitem_option = "[cyan]Add subitem[/cyan]"
-    todo_settings = "Todo settings"
+    settings_option = f"{'List' if type(todo_hierarchy[-1]) is TodoList else 'Todo'} settings"
     go_back_option = "[bright_magenta]Go back[/bright_magenta]"
     quit_option = "[red]Quit[/red]"
-    options = shown_items + [add_subitem_option, todo_settings, go_back_option, quit_option]
+    options = shown_items + [add_subitem_option, settings_option, go_back_option, quit_option]
     selected = select(options)
     utils.print_todos(shown_items)
     if selected == add_subitem_option:
-      todo.add_item()
-      app.storage.save_to_file(todo_list, False)
-    elif selected == todo_settings:
-      todo_settings_menu(app, todo, todo_list)
+      todo_hierarchy[-1].add_item()
+      app.storage.save_to_file(todo_hierarchy[0], False)
+    elif selected == "Todo settings":
+      todo_settings_menu(app, todo_hierarchy)
+    elif selected == "List settings":
+      list_settings_menu(app, todo_hierarchy[-1])
     elif selected == go_back_option:
       return
     elif selected == quit_option:
       if confirm("Are you sure you want to quit?", default_is_yes=True):
         sys.exit()
     else:
-      todo_subitem_options_menu(selected, todo, app)
+      printable_item = selected.split("\n")[0]
+      todo_item = utils.find_todo_item(utils.strip_todo_decoration(printable_item), todo_hierarchy[-1].items)
+      todo_options_menu(todo_hierarchy + [todo_item], printable_item, app)
 
 def choose_todo_list(app):
   while True:
@@ -77,7 +72,7 @@ def choose_todo_list(app):
       todo_list = app.storage.find_todo_list(user_selection)
       return todo_list
 
-def todo_settings_menu(app, todo_item, todo_parent):
+def todo_settings_menu(app, todo_hierarchy):
   console.print(f"[cyan]Todo settings:[/cyan]")
   show_hide_option = f"{'Hide' if app.show_checked else 'Show'} checked subitems"
   rename_option = "Edit todo text"
@@ -87,11 +82,11 @@ def todo_settings_menu(app, todo_item, todo_parent):
   match selected:
     case 0: app.toggle_checked_items()
     case 1:
-      todo_item.edit_text()
-      app.storage.save_to_file(todo_parent, False)
+      todo_hierarchy[-1].edit_text()
+      app.storage.save_to_file(todo_hierarchy[0], False)
     case 2:
-      todo_parent.remove_item(todo_item)
-      app.storage.save_to_file(todo_parent, False)
+      todo_hierarchy[-2].remove_item(todo_hierarchy[-1])
+      app.storage.save_to_file(todo_hierarchy[0], False)
       utils.restart_program()
 
 def list_settings_menu(app, todo_list):
@@ -112,31 +107,6 @@ def get_todos_to_show(app, todo_list):
   else:
     return utils.todos_to_list(app, [todo for todo in todo_list.items if not todo.checked])
 
-def todo_list_menu(app, todo_list):
-  while True:
-    utils.clear_screen()
-    console.print(f"[green underline]{todo_list.title}:[/green underline]")
-    shown_items = get_todos_to_show(app, todo_list)
-    add_item_option = "[cyan]Add item[/cyan]"
-    todo_settings = "List settings"
-    go_back_option = "[bright_magenta]Switch list[/bright_magenta]"
-    quit_option = "[red]Quit[/red]"
-    options = shown_items + [add_item_option, todo_settings, go_back_option, quit_option]
-    selected = select(options)
-    utils.print_todos(shown_items)
-    if selected == add_item_option:
-      todo_list.add_item()
-      app.storage.save_to_file(todo_list, False)
-    elif selected == todo_settings:
-      list_settings_menu(app, todo_list)
-    elif selected == go_back_option:
-      return
-    elif selected == quit_option:
-      if confirm("Are you sure you want to quit?", default_is_yes=True):
-        sys.exit()
-    else:
-      todo_options_menu(selected.split("\n")[0], todo_list, app)
-
 def main():
   app = TodoApp()
   while True:
@@ -145,6 +115,6 @@ def main():
       console.print("[red]There aren't any todo lists available.[/red]")
       app.create_list()
     todo_list = choose_todo_list(app)
-    selected = todo_list_menu(app, todo_list)
+    selected = todo_list_menu(app, [todo_list])
 
 main()

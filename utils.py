@@ -6,30 +6,32 @@ from todo_item import TodoItem
 console = Console()
 
 def find_todo_item(selected_todo, todos):
-  if selected_todo.startswith("[strike]"):
-    selected_todo = selected_todo.strip("[strike]").strip("[/")
-  selected_todo = selected_todo.split(" ", 1)[1]
   for todo in todos:
-    if todo.title == selected_todo:
+    if todo.text == selected_todo:
       return todo
+
+def strip_todo_decoration(todo):
+  if todo.startswith("[strike]"):
+    todo = todo.strip("[strike]").strip("[/")
+  todo = todo.split(" ", 1)[1]
+  return todo
 
 def todos_to_list(app, todo_list):
   todos = []
   for i, item in enumerate(todo_list, start=1):
     todo = ""
     if item.checked:
-      todo += (f'[strike]{i}. {item.title}[/strike]')
+      todo += (f'[strike]{i}. {item.text}[/strike]')
     else:
-      todo += (f'{i}. {item.title}')
-    if type(item) is TodoItem:
-      j = 1
-      for subitem in item.items:
-        if not subitem.checked:
-          todo += (f'\n    {j}. {subitem.title}')
-          j += 1
-        elif app.show_checked:
-          todo += (f'\n    [strike]{j}. {subitem.title}[/strike]')
-          j += 1
+      todo += (f'{i}. {item.text}')
+    j = 1
+    for subitem in item.items:
+      if not subitem.checked:
+        todo += (f'\n    {j}. {subitem.text}')
+        j += 1
+      elif app.show_checked:
+        todo += (f'\n    [strike]{j}. {subitem.text}[/strike]')
+        j += 1
     todos.append(todo)
   return todos
 

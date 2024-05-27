@@ -1,30 +1,29 @@
 from beaupy import prompt, confirm
 from rich.console import Console
+from todo_storage_manager import TodoStorageManager
 import utils
 
 console = Console()
 
 class TodoApp:
-  def __init__(self, todo_lists):
-    self.todo_lists = todo_lists
-    self.loaded_todo_lists = []
+  def __init__(self):
+    self.storage = TodoStorageManager()
+    self.storage.get_todo_lists()
     self.show_checked = False
 
   def create_list(self):
-    utils.print_todos(self.todo_lists)
+    utils.print_todos(self.storage.todo_lists)
     print("")
-    new_list = ""
-    while not utils.is_list_name_valid(new_list):
+    list_name = ""
+    while not utils.is_list_name_valid(list_name):
       try:
-        new_list = prompt("Name of new list (cannot contain any of these: . / \\):").strip()
-        if new_list in self.todo_lists:
+        list_name = prompt("Name of new list (cannot contain any of these: . / \\):").strip()
+        if list_name in self.storage.todo_lists:
           console.print("[red]There's already a list with this name.[/red]")
-          new_list = ""
+          list_name = ""
       except: # prevent program from crashing if "\" is typed
         continue
-    self.todo_lists.append(new_list)
-    self.todo_lists.sort()
-    utils.save_to_file([], new_list)
+    self.storage.save_to_file(list_name, True)
 
   def toggle_checked_items(self):
     self.show_checked = not self.show_checked
@@ -39,18 +38,18 @@ class TodoApp:
           modified_title = ""
       except: # prevent program from crashing if "\" is typed
         continue
-    list_index = self.todo_lists.index(todo_list.get_title())
+    list_index = self.storage.todo_lists.index(todo_list.get_title())
     file_name = todo_list.get_title()
     todo_list.set_title(modified_title)
-    self.todo_lists[list_index] = todo_list.get_title()
-    self.todo_lists.sort()
+    self.storage.todo_lists[list_index] = todo_list.get_title()
+    self.storage.todo_lists.sort()
     new_file_name = todo_list.get_title()
-    utils.rename_file(file_name, new_file_name)
+    self.storage.rename_file(file_name, new_file_name)
 
   def delete_list(self, todo_list):
     if confirm(f'Are you sure? All todos in this list will be lost. Forever!', default_is_yes=True):
-      self.todo_lists.remove(todo_list.title)
-      self.loaded_todo_lists.remove(todo_list)
-      utils.delete_file(todo_list.get_title())
+      self.storage.todo_lists.remove(todo_list.title)
+      self.storage.loaded_todo_lists.remove(todo_list)
+      self.storage.delete_file(todo_list.get_title())
       del todo_list
       utils.restart_program()

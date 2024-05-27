@@ -1,10 +1,7 @@
-import json
 import os
-import re
 import sys
-from todo_list import TodoList
-from todo_item import TodoItem
 from rich.console import Console
+from todo_item import TodoItem
 
 console = Console()
 
@@ -13,57 +10,43 @@ def find_todo_item(selected_todo, todos):
     selected_todo = selected_todo.strip("[strike]").strip("[/")
   selected_todo = selected_todo.split(" ", 1)[1]
   for todo in todos:
-    if todo.text == selected_todo:
+    if todo.title == selected_todo:
       return todo
 
-def todos_to_list(todos):
-  todos_list = []
-  for index, todo in enumerate(todos, start=1):
-    if todo.checked:
-      todos_list.append(f'[strike]{index}. {todo.text}[/strike]')
+def todos_to_list(app, todo_list):
+  todos = []
+  for i, item in enumerate(todo_list, start=1):
+    todo = ""
+    if item.checked:
+      todo += (f'[strike]{i}. {item.title}[/strike]')
     else:
-      todos_list.append(f'{index}. {todo.text}')
-  return todos_list
+      todo += (f'{i}. {item.title}')
+    if type(item) is TodoItem:
+      j = 1
+      for subitem in item.items:
+        if not subitem.checked:
+          todo += (f'\n    {j}. {subitem.title}')
+          j += 1
+        elif app.show_checked:
+          todo += (f'\n    [strike]{j}. {subitem.title}[/strike]')
+          j += 1
+    todos.append(todo)
+  return todos
+
+def get_todos_to_show(app, todo_list):
+  if app.show_checked:
+    return todos_to_list(todo_list.items, app)
+  else:
+    return todos_to_list([todo for todo in todo_list.items if not todo.checked], app)
 
 def print_todos(todos):
   for todo in todos:
     console.print(todo)
 
-def read_todos_from_file(list_name):
-  with open(f"todos/{list_name}.json") as todos_doc:
-    todos_data = json.load(todos_doc)
-    return process_todos_data(todos_data, list_name)
-
-def rename_file(list_name, new_list_name):
-  os.rename(f"todos/{list_name}.json", f"todos/{new_list_name}.json")
-
-def delete_file(list_name):
-  os.remove(f"todos/{list_name}.json")
-
-def process_todos_data(data, file):
-  todo_list = []
-  for todo_data in data:
-    todo_list.append(TodoItem(todo_data["text"], todo_data["checked"]))
-  return TodoList(file.split(".")[0], todo_list)
-
 def is_list_name_valid(list_name):
   longer_than_zero = len(list_name) > 0
   no_invalid_chars = all(char not in list_name for char in (".", "/"))
   return longer_than_zero and no_invalid_chars
-
-def save_to_file(todos, list_name):
-  with open(f"todos/{list_name}.json", "w") as todos_doc:
-    json.dump([vars(todo) for todo in todos], todos_doc)
-
-def get_todo_lists():
-  if not os.path.isdir("todos"):
-    os.makedirs("todos")
-  todo_files = os.listdir("todos")
-  todo_lists = []
-  for file in todo_files:
-    todo_lists.append(file.split(".")[0])
-  todo_lists.sort()
-  return todo_lists
 
 def clear_screen():
   os.system('cls' if os.name=='nt' else 'clear')

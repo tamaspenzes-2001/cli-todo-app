@@ -1,10 +1,9 @@
-from todo_item import TodoItem
 from beaupy import prompt, confirm
 
 class TodoList:
-  def __init__(self, title, todos):
+  def __init__(self, title, items):
     self.title = title
-    self.todos = todos
+    self.items = items
   
   def get_title(self):
     return self.title
@@ -13,28 +12,31 @@ class TodoList:
     self.title = new_title
 
   def add_item(self):
+    from todo_item import TodoItem
     new_item = ""
     while new_item == "":
       try:
-        new_item = prompt("New item (cannot contain \\):").strip()
+        item_or_subitem = "item" if type(self) is TodoList else "subitem"
+        new_item = prompt(f"New {item_or_subitem} (cannot contain \\):").strip()
       except: # prevent program from crashing if "\" is typed
         continue
-    self.todos.append(TodoItem(new_item, False))
+    self.items.append(TodoItem(new_item, False, []))
 
   def remove_item(self, selected_todo):
     if confirm(f'Delete item from the list?', default_is_yes=True):
-      self.todos.remove(selected_todo)
+      self.items.remove(selected_todo)
+      del selected_todo
 
   def move_item_up(self, selected_todo):
-    todo_index = self.todos.index(selected_todo)
+    todo_index = self.items.index(selected_todo)
     if todo_index != 0:
-      self.todos.insert(todo_index-1, self.todos.pop(todo_index))
+      self.items.insert(todo_index-1, self.items.pop(todo_index))
     else:
-      self.todos.append(self.todos.pop(todo_index))
+      self.items.append(self.items.pop(todo_index))
 
   def move_item_down(self, selected_todo):
-    todo_index = self.todos.index(selected_todo)
-    if todo_index != len(self.todos)-1:
-      self.todos.insert(todo_index+1, self.todos.pop(todo_index))
+    todo_index = self.items.index(selected_todo)
+    if todo_index != len(self.items)-1:
+      self.items.insert(todo_index+1, self.items.pop(todo_index))
     else:
-      self.todos.insert(0, self.todos.pop())
+      self.items.insert(0, self.items.pop())

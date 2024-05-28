@@ -20,7 +20,7 @@ class TodoApp:
       try:
         list_name = prompt("Name of new list (cannot contain any of these: . / \\):").strip()
         if list_name in self.storage.todo_lists:
-          console.print("[red]There's already a list with this name.[/red]")
+          console.print("[salmon1]There's already a list with this name.[/salmon1]")
           list_name = ""
       except: # prevent program from crashing if "\" is typed
         continue
@@ -35,7 +35,7 @@ class TodoApp:
       try:
         modified_title = prompt("Edit list title (cannot contain any of these: . / \\):", initial_value=todo_list.get_title()).strip()
         if modified_title != todo_list.get_title() and modified_title in self.todo_lists:
-          console.print("[red]There's already a list with this name.[/red]")
+          console.print("[salmon1]There's already a list with this name.[/salmon1]")
           modified_title = ""
       except: # prevent program from crashing if "\" is typed
         continue

@@ -9,7 +9,7 @@ from todo_item import TodoItem
 console = Console()
 
 def todo_options_menu(todo_hierarchy, printable_item, app):
-  console.print("[cyan]Selected: " + printable_item + "[/cyan]")
+  console.print("[cyan2]Selected: " + printable_item + "[/cyan2]")
   options = ["1. Toggle check", "2. Edit todo text", "3. Delete", "4. Move up", "5. Move down", "6. Edit subitems"]
   operation = select(options, return_index=True)
   todo_hierarchy[-1] = utils.find_todo_item(todo_hierarchy[-1].text, todo_hierarchy[-2].items)
@@ -25,16 +25,16 @@ def todo_options_menu(todo_hierarchy, printable_item, app):
 def todo_list_menu(app, todo_hierarchy):
   while True:
     utils.clear_screen()
-    header_text = "[green underline]"
+    header_text = "[chartreuse1 underline]"
     for item in todo_hierarchy:
       header_text += item.text + " / "
-    header_text += "[/green underline]"
+    header_text += "[/chartreuse1 underline]"
     console.print(header_text)
     shown_items = get_todos_to_show(app, todo_hierarchy[-1])
-    add_subitem_option = "[cyan]Add subitem[/cyan]"
+    add_subitem_option = "[cyan2]Add subitem[/cyan2]"
     settings_option = f"{'List' if type(todo_hierarchy[-1]) is TodoList else 'Todo'} settings"
-    go_back_option = "[bright_magenta]Go back[/bright_magenta]"
-    quit_option = "[red]Quit[/red]"
+    go_back_option = "[plum1]Go back[/plum1]"
+    quit_option = "[salmon1]Quit[/salmon1]"
     options = shown_items + [add_subitem_option, settings_option, go_back_option, quit_option]
     selected = select(options)
     utils.print_todos(shown_items)
@@ -58,9 +58,9 @@ def todo_list_menu(app, todo_hierarchy):
 def choose_todo_list(app):
   while True:
     utils.clear_screen()
-    console.print("[green underline]TODO LISTS[/green underline]")
-    create_list_option = "[cyan]Create new list[/cyan]"
-    quit_option = "[red]Quit[/red]"
+    console.print("[chartreuse1 underline]TODO LISTS[/chartreuse1 underline]")
+    create_list_option = "[cyan2]Create new list[/cyan2]"
+    quit_option = "[salmon1]Quit[/salmon1]"
     options = app.storage.todo_lists + [create_list_option, quit_option]
     user_selection = select(options)
     if user_selection == create_list_option:
@@ -73,10 +73,10 @@ def choose_todo_list(app):
       return todo_list
 
 def todo_settings_menu(app, todo_hierarchy):
-  console.print(f"[cyan]Todo settings:[/cyan]")
+  console.print(f"[cyan2]Todo settings:[/cyan2]")
   show_hide_option = f"{'Hide' if app.show_checked else 'Show'} checked subitems"
   rename_option = "Edit todo text"
-  delete_option = "[red]Delete todo[/red]"
+  delete_option = "[salmon1]Delete todo[/salmon1]"
   options = [show_hide_option, rename_option, delete_option]
   selected = select(options, return_index=True)
   match selected:
@@ -90,10 +90,10 @@ def todo_settings_menu(app, todo_hierarchy):
       utils.restart_program()
 
 def list_settings_menu(app, todo_list):
-  console.print(f"[cyan]List settings:[/cyan]")
+  console.print(f"[cyan2]List settings:[/cyan2]")
   show_hide_option = f"{'Hide' if app.show_checked else 'Show'} checked items"
   rename_option = "Rename list"
-  delete_option = "[red]Delete list[/red]"
+  delete_option = "[salmon1]Delete list[/salmon1]"
   options = [show_hide_option, rename_option, delete_option]
   selected = select(options, return_index=True)
   match selected:
@@ -112,7 +112,7 @@ def main():
   while True:
     utils.clear_screen()
     if len(app.storage.todo_lists) == 0:
-      console.print("[red]There aren't any todo lists available.[/red]")
+      console.print("[salmon1]There aren't any todo lists available.[/salmon1]")
       app.create_list()
     todo_list = choose_todo_list(app)
     selected = todo_list_menu(app, [todo_list])

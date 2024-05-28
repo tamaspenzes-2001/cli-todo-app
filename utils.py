@@ -11,8 +11,8 @@ def find_todo_item(selected_todo, todos):
       return todo
 
 def strip_todo_decoration(todo):
-  if todo.startswith("[strike]"):
-    todo = todo.strip("[strike]").strip("[/")
+  if todo.startswith("[grey58 strike]"):
+    todo = todo.strip("[grey58 strike]").strip("[/")
   todo = todo.split(" ", 1)[1]
   return todo
 
@@ -21,7 +21,7 @@ def todos_to_list(app, todo_list):
   for i, item in enumerate(todo_list, start=1):
     todo = ""
     if item.checked:
-      todo += (f'[strike]{i}. {item.text}[/strike]')
+      todo += (f'[grey58 strike]{i}. {item.text}[/grey58 strike]')
     else:
       todo += (f'{i}. {item.text}')
     j = 1
@@ -30,7 +30,7 @@ def todos_to_list(app, todo_list):
         todo += (f'\n    {j}. {subitem.text}')
         j += 1
       elif app.show_checked:
-        todo += (f'\n    [strike]{j}. {subitem.text}[/strike]')
+        todo += (f'\n    [grey58 strike]{j}. {subitem.text}[/grey58 strike]')
         j += 1
     todos.append(todo)
   return todos

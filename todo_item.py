@@ -10,6 +10,8 @@ class TodoItem(TodoList):
     self.checked = not self.checked
     for item in self.items:
       item.checked = self.checked
+      for subitem in item.items:
+        subitem.checked = self.checked
 
   def edit_text(self):
     modified_todo_text = ""

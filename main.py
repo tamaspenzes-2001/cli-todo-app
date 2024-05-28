@@ -76,18 +76,19 @@ def todo_settings_menu(app, todo_hierarchy):
   console.print(f"[cyan2]Todo settings:[/cyan2]")
   show_hide_option = f"{'Hide' if app.show_checked else 'Show'} checked subitems"
   rename_option = "Edit todo text"
+  toggle_checked_option = "Toggle check"
   delete_option = "[salmon1]Delete todo[/salmon1]"
-  options = [show_hide_option, rename_option, delete_option]
+  options = [show_hide_option, rename_option, toggle_checked_option, delete_option]
   selected = select(options, return_index=True)
   match selected:
     case 0: app.toggle_checked_items()
-    case 1:
-      todo_hierarchy[-1].edit_text()
-      app.storage.save_to_file(todo_hierarchy[0], False)
-    case 2:
+    case 1: todo_hierarchy[-1].edit_text()
+    case 2: todo_hierarchy[-1].toggle_checked()
+    case 3:
       todo_hierarchy[-2].remove_item(todo_hierarchy[-1])
       app.storage.save_to_file(todo_hierarchy[0], False)
       utils.restart_program()
+  app.storage.save_to_file(todo_hierarchy[0], False)
 
 def list_settings_menu(app, todo_list):
   console.print(f"[cyan2]List settings:[/cyan2]")

@@ -8,6 +8,8 @@ class TodoItem(TodoList):
 
   def toggle_checked(self):
     self.checked = not self.checked
+    for item in self.items:
+      item.checked = self.checked
 
   def edit_text(self):
     modified_todo_text = ""
